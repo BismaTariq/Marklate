@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Marklate — for website &amp; store content</title>
+<style>
+  :root{
+    --bg:#F7F7F5; --panel:#fff; --ink:#1A1A2E; --muted:#6B6B7B; --faint:#a3a3ad;
+    --ph:#b6b6be; --border:#E6E6EA; --borderLt:#F0F0F2; --accent:#4F46E5;
+    --accentBg:#EEF0FF; --tgtHead:#FAFAFF; --error:#c0392b; --warn:#b26a00;
+    --ok:#0f6e56;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px 16px 40px}
+  .head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{width:36px;height:36px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+  .brand h1{font-size:18px;margin:0;font-weight:600;letter-spacing:-.01em}
+  .brand p{font-size:12px;margin:0;color:var(--muted)}
+  .head-actions{display:flex;gap:8px;align-items:center}
+  .btn{font-size:14px;padding:7px 12px;border-radius:9px;border:1px solid var(--border);
+    background:#fff;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px}
+  .btn:hover{border-color:#c9c9d2}
+  .btn.on{border-color:var(--accent);color:var(--accent);background:var(--accentBg)}
+  .banner{display:none;background:#FFF7E6;border:1px solid #F5DDA6;color:var(--warn);
+    padding:10px 14px;border-radius:12px;font-size:13.5px;margin-bottom:14px;line-height:1.5}
+  .banner a{color:var(--accent)}
+  .status{display:none;background:var(--accentBg);border:1px solid #D9D6FA;color:var(--accent);
+    padding:8px 14px;border-radius:10px;font-size:13px;margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .pane{background:var(--panel);border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;min-height:340px}
+  .pane-head{display:flex;align-items:center;justify-content:space-between;height:48px;padding:0 14px;border-bottom:1px solid var(--borderLt)}
+  .pane-head.tgt{background:var(--tgtHead)}
+  select{font-size:14px;font-weight:500;background:transparent;border:none;outline:none;cursor:pointer;color:var(--ink);padding-right:4px}
+  .tgt select{color:var(--accent)}
+  textarea,.out{flex:1;width:100%;border:none;outline:none;resize:none;padding:14px;font-size:15px;line-height:1.6;font-family:inherit;color:var(--ink);background:transparent;min-height:230px}
+  .out{white-space:pre-wrap;overflow:auto}
+  .out .ph{color:var(--ph)}
+  .foot{height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-top:1px solid var(--borderLt);font-size:12px;color:var(--faint)}
+  .foot.warn{color:var(--warn)}
+  .iconbtn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:7px}
+  .iconbtn:hover{background:var(--accentBg);color:var(--accent)}
+  .iconbtn:disabled{opacity:.4;cursor:not-allowed}
+  .swap{position:absolute;left:50%;top:20px;transform:translateX(-50%);z-index:5;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .swap:hover{color:var(--accent);border-color:var(--accent)}
+  .swap:disabled{opacity:.4;cursor:not-allowed}
+  @media(max-width:720px){.swap{display:none}}
+  .tip{font-size:12px;color:var(--faint);text-align:center;margin-top:16px;line-height:1.6}
+  .spin{width:14px;height:14px;border:2px solid #d9d6fa;border-top-color:var(--accent);border-radius:50%;animation:s .7s linear infinite;display:inline-block}
+  @keyframes s{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="brand">
+      <div class="logo">&#127760;</div>
+      <div>
+        <h1>Marklate</h1>
+        <p>private, on-device &mdash; for website &amp; store content</p>
+      </div>
+    </div>
+    <div class="head-actions">
+      <button class="btn on" id="protectBtn" title="Keep HTML, shortcodes and placeholders intact">
+        <span>&#128274;</span> Protect code
+      </button>
+    </div>
+  </div>
+
+  <div class="banner" id="banner"></div>
+  <div class="status" id="status"></div>
+
+  <div class="grid">
+    <div class="pane">
+      <div class="pane-head">
+        <select id="srcLang">
+          <option value="auto">Detect language</option>
+        </select>
+        <button class="iconbtn" id="clearBtn" title="Clear" style="display:none">&#10005;</button>
+      </div>
+      <textarea id="src" placeholder="Type or paste text here&hellip;" spellcheck="false"></textarea>
+      <div class="foot" id="srcFoot"><span id="count">0 characters</span><span id="over"></span></div>
+    </div>
+
+    <button class="swap" id="swapBtn" title="Swap languages" disabled>&#8646;</button>
+
+    <div class="pane">
+      <div class="pane-head tgt">
+        <select id="tgtLang"></select>
+        <button class="iconbtn" id="copyBtn" disabled><span>&#128203;</span> Copy</button>
+      </div>
+      <div class="out" id="out"><span class="ph">Translation appears here.</span></div>
+      <div class="foot"><span id="outCount">0 characters</span></div>
+    </div>
+  </div>
+
+  <p class="tip">
+    Runs entirely in your browser &mdash; no account, no key, nothing sent to a server.
+    Review translations before publishing.
+  </p>
+</div>
+
+<script>
+const LANGS = [
+  ["en","English"],["fr","French"],["de","German"],["es","Spanish"],["it","Italian"],
+  ["pt","Portuguese"],["nl","Dutch"],["pl","Polish"],["ru","Russian"],["tr","Turkish"],
+  ["ar","Arabic"],["hi","Hindi"],["ja","Japanese"],["ko","Korean"],["zh","Chinese"]
+];
+const $ = id => document.getElementById(id);
+const srcEl=$("src"), outEl=$("out"), srcLangEl=$("srcLang"), tgtLangEl=$("tgtLang");
+const nameFor = c => (LANGS.find(l=>l[0]===c)||[])[1]||c;
+
+LANGS.forEach(([c,n])=>{
+  srcLangEl.insertAdjacentHTML("beforeend",`<option value="${c}">${n}</option>`);
+  tgtLangEl.insertAdjacentHTML("beforeend",`<option value="${c}">${n}</option>`);
+});
+tgtLangEl.value="fr";
+
+let protect=true;
+$("protectBtn").onclick=()=>{protect=!protect;$("protectBtn").classList.toggle("on",protect);run();};
+
+const supported = ("Translator" in self);
+if(!supported){
+  $("banner").style.display="block";
+  $("banner").innerHTML='This browser can\'t translate on-device yet. Use <b>Chrome</b> or <b>Microsoft Edge</b> on a desktop computer to run it fully offline and free. '+
+    '<a href="https://developer.chrome.com/docs/ai/translator-api" target="_blank" rel="noopener">Learn more</a>';
+}
+
+function mask(text){
+  const store=[]; let i=0;
+  const re=/(<\/?[^>]+>|\[[^\]]+\]|\{\{[^}]+\}\}|\{[^}]+\}|%[sd])/g;
+  const masked=text.replace(re,m=>{store.push(m);return `\u27E6${i++}\u27E7`;});
+  return {masked,store};
+}
+function unmask(text,store){
+  return text.replace(/\u27E6\s*(\d+)\s*\u27E7/g,(_,n)=>store[+n]!==undefined?store[+n]:_);
+}
+
+const cache={};
+async function getTranslator(src,tgt){
+  const key=src+">"+tgt;
+  if(cache[key]) return cache[key];
+  const avail=await Translator.availability({sourceLanguage:src,targetLanguage:tgt});
+  if(avail==="unavailable") throw {code:"pair"};
+  if(avail!=="available"){
+    setStatus("Downloading the "+nameFor(src)+" &rarr; "+nameFor(tgt)+" language model (one time)&hellip;",true);
+  }
+  const t=await Translator.create({
+    sourceLanguage:src,targetLanguage:tgt,
+    monitor(m){m.addEventListener("downloadprogress",e=>{
+      setStatus("Downloading language model&hellip; "+Math.round(e.loaded*100)+"%",true);
+    });}
+  });
+  setStatus("",false);
+  cache[key]=t; return t;
+}
+
+async function detect(text){
+  if(srcLangEl.value!=="auto") return srcLangEl.value;
+  if(!("LanguageDetector" in self)) return "en";
+  try{
+    const d=await LanguageDetector.create();
+    const r=await d.detect(text);
+    return (r&&r[0]&&r[0].detectedLanguage)||"en";
+  }catch{return "en";}
+}
+
+let timer, reqId=0;
+function setStatus(html,show){
+  $("status").innerHTML=html; $("status").style.display=show?"block":"none";
+}
+function setOut(html,isPh){
+  outEl.innerHTML=isPh?`<span class="ph">${html}</span>`:"";
+  if(!isPh) outEl.textContent=html;
+  $("outCount").textContent=(isPh?0:html.length)+" characters";
+  $("copyBtn").disabled=isPh||!html;
+  $("swapBtn").disabled=isPh||!html;
+}
+
+async function run(){
+  const text=srcEl.value;
+  $("count").textContent=text.length+" characters";
+  $("clearBtn").style.display=text?"flex":"none";
+  const over=text.length>6000;
+  $("over").textContent=over?"Long text \u2014 translate in smaller parts":"";
+  $("srcFoot").classList.toggle("warn",over);
+
+  if(!text.trim()){setOut("Translation appears here.",true);setStatus("",false);return;}
+  if(!supported){setOut("Open this in Chrome or Edge on desktop to translate.",true);return;}
+
+  const myId=++reqId;
+  setOut('<span class="spin"></span> Translating\u2026',true);
+  try{
+    const src=await detect(text);
+    let tgt=tgtLangEl.value;
+    if(src===tgt){setOut(text,false);return;}
+    const t=await getTranslator(src,tgt);
+    let toSend=text, store=[];
+    if(protect){const m=mask(text);toSend=m.masked;store=m.store;}
+    let result=await t.translate(toSend);
+    if(protect) result=unmask(result,store);
+    if(myId!==reqId) return;
+    setOut(result,false);
+  }catch(err){
+    if(myId!==reqId) return;
+    if(err&&err.code==="pair"){
+      setOut("That language pair isn't available on-device. Try another target language.",true);
+    }else{
+      setOut("Couldn't translate that. Try again.",true);
+    }
+    setStatus("",false);
+  }
+}
+
+srcEl.addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(run,550);});
+srcLangEl.addEventListener("change",run);
+tgtLangEl.addEventListener("change",run);
+
+$("clearBtn").onclick=()=>{srcEl.value="";run();srcEl.focus();};
+$("copyBtn").onclick=async()=>{
+  try{await navigator.clipboard.writeText(outEl.textContent);
+    $("copyBtn").innerHTML="<span>&#10003;</span> Copied";
+    setTimeout(()=>$("copyBtn").innerHTML="<span>&#128203;</span> Copy",1500);
+  }catch{}
+};
+$("swapBtn").onclick=()=>{
+  const out=outEl.textContent;
+  const newSrcLang=tgtLangEl.value;
+  const newTgt=srcLangEl.value==="auto"?"en":srcLangEl.value;
+  srcEl.value=out; srcLangEl.value=newSrcLang; tgtLangEl.value=newTgt;
+  run();
+};
+</script>
+</body>
+</html>
